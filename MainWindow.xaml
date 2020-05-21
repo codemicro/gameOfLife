@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameOfLife"
         mc:Ignorable="d"
-        Title="Game of Life" Height="540" Width="520"
+        Title="Game of Life" Height="600" Width="520"
         x:Name="window">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -16,10 +16,18 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="20" />
                 <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="20" />
             </Grid.RowDefinitions>
             
-            <Border Grid.Column="1" Grid.Row="1" Height="462" Width="462" BorderBrush="Black" BorderThickness="2"
+            <UniformGrid Grid.Column="1" Grid.Row="1">
+                <Button Content="Start"></Button>
+                <Button Content="Stop"></Button>
+                <Button Content="Reset"></Button>
+                <Button Content="Load from file"></Button>
+            </UniformGrid>
+            
+            <Border Grid.Column="1" Grid.Row="2" Height="462" Width="462" BorderBrush="Black" BorderThickness="2" Margin="0, 5, 0, 0"
                     ClipToBounds="True">
                 <Canvas x:Name="gameCanvas" Height="460" Width="460" ClipToBounds="True">
                 </Canvas>
