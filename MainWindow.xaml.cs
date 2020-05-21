@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace GameOfLife
 {
@@ -128,8 +129,7 @@ namespace GameOfLife
                         }
 
                         // Make decisions about if the cell should live or die
-                        
-                        
+
                         if (States[x, y] && numNeighbours < 2)
                         {
                             NextIterStates[x, y] = false;
@@ -177,17 +177,29 @@ namespace GameOfLife
             // Add functions to worker to be run asynchronously
             worker.DoWork += CalculateNextIteration;
             worker.RunWorkerCompleted += UpdateUI;
+
+            void tickAction(object sender, object e)
+            {
+                worker.RunWorkerAsync();
+            }
             
-            var timer = new System.Threading.Timer(
+            /*var timer = new System.Threading.Timer(
                 e => worker.RunWorkerAsync(),
                 null,
                 TimeSpan.Zero,
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(5));*/
+            
+            // https://www.pmichaels.net/2015/11/27/using-a-timer-to-update-the-ui-thread/
+            var timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(5);
+            timer.Tick += tickAction;
+            timer.Start();
+            
         }
 
-        public class Cell
+        private class Cell
         {
-            public bool IsAlive = false;
+            private bool IsAlive = false;
             public Rectangle Rect { get; set; }
 
             public void SetAlive()
