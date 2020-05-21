@@ -14,24 +14,18 @@ namespace GameOfLife
     public partial class MainWindow
     {
         
-        private readonly BackgroundWorker worker = new BackgroundWorker();  // used for game logic
+        private readonly BackgroundWorker worker = new BackgroundWorker();  // used for running game logic
+        private readonly DispatcherTimer Timer = new DispatcherTimer();
         private readonly Cell[,] Cells = new Cell[46, 46];
-        private readonly bool[,] States = new bool[46, 46];
         private readonly bool[,] NextIterStates = new bool[46, 46];
+        
+        private bool[,] States = new bool[46, 46];
+        
+        public bool IsRunning = false;
+        public int CurrentIteration = 0;
 
         public MainWindow()
         {
-            void SetCellAlive(int x, int y)
-            {
-                States[x, y] = true;
-                Cells[x, y].SetAlive();
-            }
-
-            void SetCellDead(int x, int y)
-            {
-                States[x, y] = false;
-                Cells[x, y].SetDead();
-            }
 
             InitializeComponent();
 
@@ -166,21 +160,11 @@ namespace GameOfLife
                         }
                     }
                 }
+
+                IncrementIteration();
             }
-            
-            // TODO: Set initial state
-            
-            // Create a blinker
-            SetCellAlive(30, 5);
-            SetCellAlive(31, 5);
-            SetCellAlive(32, 5);
-            
-            // Create a glider
-            SetCellAlive(0, 2);
-            SetCellAlive(1, 3);
-            SetCellAlive(2, 3);
-            SetCellAlive(2, 2);
-            SetCellAlive(2, 1);
+
+            InitialiseCells();
             
             // Add functions to worker to be run asynchronously
             worker.DoWork += CalculateNextIteration;
@@ -198,29 +182,119 @@ namespace GameOfLife
                 TimeSpan.FromSeconds(5));*/
             
             // https://www.pmichaels.net/2015/11/27/using-a-timer-to-update-the-ui-thread/
-            var timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(250);
-            timer.Tick += tickAction;
-            timer.Start();
+
+            tickSpeedSlider.Value = 250;
             
+            Timer.Interval = TimeSpan.FromMilliseconds(250);
+            Timer.Tick += tickAction;
+
+        }
+        
+        // Various functions
+
+        private void IncrementIteration()
+        {
+            CurrentIteration++;
+            iterationTextBlock.Text = "Iteration: " + CurrentIteration;
         }
 
+        private void ResetIteration()
+        {
+            CurrentIteration = 0;
+            iterationTextBlock.Text = "Iteration: " + CurrentIteration;
+        }
+        
+        private void InitialiseCells()
+        {
+            // TODO: Better functionality to set initial state
+            
+            // Create a blinker
+            SetCellAlive(30, 5);
+            SetCellAlive(31, 5);
+            SetCellAlive(32, 5);
+            
+            // Create a glider
+            SetCellAlive(0, 2);
+            SetCellAlive(1, 3);
+            SetCellAlive(2, 3);
+            SetCellAlive(2, 2);
+            SetCellAlive(2, 1);
+        }
+        
+        private void SetCellAlive(int x, int y)
+        {
+            States[x, y] = true;
+            Cells[x, y].SetAlive();
+        }
+
+        private void SetCellDead(int x, int y)
+        {
+            States[x, y] = false;
+            Cells[x, y].SetDead();
+        }
+        
+        // Classes
+        
         private class Cell
         {
-            private bool IsAlive = false;
+            // Represents a cell in the master array
+            
             public Rectangle Rect { get; set; }
 
             public void SetAlive()
             {
-                IsAlive = true;
                 Rect.Fill = Brushes.Black;
             }
 
             public void SetDead()
             {
-                IsAlive = false;
                 Rect.Fill = Brushes.White;
             }
+        }
+        
+        
+        // Functions triggered by UI interaction
+
+        private void Start_button(object sender, RoutedEventArgs e)
+        {
+            Timer.Start();
+            IsRunning = true;
+            statusTextBlock.Text = "Currently: Running";
+        }
+
+        private void Stop_button(object sender, RoutedEventArgs e)
+        {
+            Timer.Stop();
+            IsRunning = false;
+            statusTextBlock.Text = "Currently: Not running";
+        }
+
+        private void Reset_button(object sender, RoutedEventArgs e)
+        {
+            States = new bool[46,46];  // reset current state of cells
+            
+            for (var x = 0; x < 45; x++)
+            {
+                for (var y = 0; y < 45; y++)
+                {
+                    if (!States[x, y]) SetCellDead(x, y);
+                }
+            }
+            
+            ResetIteration();
+            
+            // Redraw
+            InitialiseCells();
+        }
+
+        private void LoadFromFile_button(object sender, RoutedEventArgs e)
+        {
+            // TODO
+        }
+
+        private void TickSpeedChanged_slider(object sender, RoutedEventArgs e)
+        {
+            Timer.Interval = TimeSpan.FromMilliseconds(tickSpeedSlider.Value);
         }
     }
 }
