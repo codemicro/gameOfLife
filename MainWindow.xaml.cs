@@ -95,11 +95,14 @@ namespace GameOfLife
                 Array.Copy(States, NextIterStates, States.Length);
 
                 // Iter over every cell
-                for (var x = 0; x < 46; x++)
+                for (var y = 0; y < 46; y++)
                 {
-                    for (var y = 0; y < 46; y++)
+                    for (var x = 0; x < 46; x++)
                     {
                         // Calculate number of neighbours
+
+                        var numNeighbours = 0;
+                        
                         var positions = new int[8, 2]
                         {
                             { 0, 1 },
@@ -109,10 +112,8 @@ namespace GameOfLife
                             { 0, -1 },
                             { -1, -1 },
                             { -1, 0 },
-                            { -1, -1 }
+                            { -1, 1 }
                         };
-
-                        var numNeighbours = 0;
                         
                         for (var i = 0; i < positions.GetLength(0); i++)
                         {
@@ -128,11 +129,11 @@ namespace GameOfLife
                             }
                         }
 
-                        // Make decisions about if the cell should live or die
+                        // Make decisions about the fate of each cell
 
-                        if (States[x, y] && numNeighbours < 2)
+                        if (States[x, y] && (numNeighbours == 2 || numNeighbours == 3))
                         {
-                            NextIterStates[x, y] = false;
+                            NextIterStates[x, y] = true;
                         }
                         else if (!States[x, y] && numNeighbours == 3)
                         {
@@ -142,14 +143,13 @@ namespace GameOfLife
                         {
                             NextIterStates[x, y] = false;
                         }
+
                     }
                 }
 
-                // Modify cell state
-
             }
 
-            void UpdateUI(object sender, RunWorkerCompletedEventArgs e)
+            void UpdateUi(object sender, RunWorkerCompletedEventArgs e)
             {
                 for (var x = 0; x < 45; x++)
                 {
@@ -167,16 +167,24 @@ namespace GameOfLife
                     }
                 }
             }
-
-
-            // TODO: Set inital state
-            SetCellAlive(15, 15);
-            SetCellAlive(16, 15);
-            SetCellAlive(17, 15);
-
+            
+            // TODO: Set initial state
+            
+            // Create a blinker
+            SetCellAlive(30, 5);
+            SetCellAlive(31, 5);
+            SetCellAlive(32, 5);
+            
+            // Create a glider
+            SetCellAlive(0, 2);
+            SetCellAlive(1, 3);
+            SetCellAlive(2, 3);
+            SetCellAlive(2, 2);
+            SetCellAlive(2, 1);
+            
             // Add functions to worker to be run asynchronously
             worker.DoWork += CalculateNextIteration;
-            worker.RunWorkerCompleted += UpdateUI;
+            worker.RunWorkerCompleted += UpdateUi;
 
             void tickAction(object sender, object e)
             {
@@ -191,7 +199,7 @@ namespace GameOfLife
             
             // https://www.pmichaels.net/2015/11/27/using-a-timer-to-update-the-ui-thread/
             var timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(5);
+            timer.Interval = TimeSpan.FromMilliseconds(250);
             timer.Tick += tickAction;
             timer.Start();
             
