@@ -12,8 +12,11 @@ namespace GameOfLife
     /// </summary>
     public partial class MainWindow
     {
+        
+        private readonly BackgroundWorker worker = new BackgroundWorker();  // used for game logic
         private readonly Cell[,] Cells = new Cell[46, 46];
         private readonly bool[,] States = new bool[46, 46];
+        private readonly bool[,] NextIterStates = new bool[46, 46];
 
         public MainWindow()
         {
@@ -85,11 +88,10 @@ namespace GameOfLife
                 gameCanvas.Children.Add(line);
             }
 
-            void Update()
+            void CalculateNextIteration(object sender, DoWorkEventArgs e)
             {
                 // Copy array
-                var nextIterStates = new bool[46, 46];
-                Array.Copy(States, nextIterStates, States.Length);
+                Array.Copy(States, NextIterStates, States.Length);
 
                 // Iter over every cell
                 for (var x = 0; x < 46; x++)
@@ -130,44 +132,40 @@ namespace GameOfLife
                         
                         if (States[x, y] && numNeighbours < 2)
                         {
-                            nextIterStates[x, y] = false;
+                            NextIterStates[x, y] = false;
                         }
                         else if (!States[x, y] && numNeighbours == 3)
                         {
-                            nextIterStates[x, y] = true;
+                            NextIterStates[x, y] = true;
                         }
                         else
                         {
-                            nextIterStates[x, y] = false;
+                            NextIterStates[x, y] = false;
                         }
                     }
                 }
 
                 // Modify cell state
-                
+
+            }
+
+            void UpdateUI(object sender, RunWorkerCompletedEventArgs e)
+            {
                 for (var x = 0; x < 45; x++)
                 {
                     for (var y = 0; y < 45; y++)
                     {
-                        if (States[x, y] != nextIterStates[x, y])
+                        if (States[x, y] == NextIterStates[x, y]) { }
+                        else if (NextIterStates[x, y])
                         {
-                            
-                            Action action;
-                            
-                            if (nextIterStates[x, y])
-                            {
-                                action = delegate() { SetCellAlive(x, y); };
-                            }
-                            else
-                            {
-                                action = delegate { SetCellDead(x, y); };
-                            }
-                            
-                            Application.Current.Dispatcher.BeginInvoke(action);
+                            SetCellAlive(x, y);
+                        }
+                        else
+                        {
+                            SetCellDead(x, y);
                         }
                     }
                 }
-                
             }
 
 
@@ -176,8 +174,12 @@ namespace GameOfLife
             SetCellAlive(16, 15);
             SetCellAlive(17, 15);
 
+            // Add functions to worker to be run asynchronously
+            worker.DoWork += CalculateNextIteration;
+            worker.RunWorkerCompleted += UpdateUI;
+            
             var timer = new System.Threading.Timer(
-                e => Update(),
+                e => worker.RunWorkerAsync(),
                 null,
                 TimeSpan.Zero,
                 TimeSpan.FromSeconds(5));
