@@ -325,15 +325,15 @@ namespace GameOfLife
                 for (var lineNumber = 0; lineNumber < filetext.Length; lineNumber++)
                 {
                     
-                    if (filetext[lineNumber].Replace("\r", "").Length != 46)
+                    if (filetext[lineNumber].Trim().Length != 46)
                     {
                         MessageBox.Show("Incorrect number of characters on line " + (lineNumber + 1) + "! Must be 46");
                         return;
                     }
                     
-                    for (var charNumber = 0; charNumber < filetext[lineNumber].Replace("\r", "").Length; charNumber++)
+                    for (var charNumber = 0; charNumber < filetext[lineNumber].Trim().Length; charNumber++)
                     {
-                        var c = filetext[lineNumber][charNumber];
+                        var c = filetext[lineNumber].Trim()[charNumber];
                         
                         bool val;
                         if (c == '0')
