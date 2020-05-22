@@ -82,6 +82,7 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include="Templates\randomlyGenerated.txt" />
+      <Content Include="Templates\secondRando.txt" />
       <Content Include="Templates\template.txt" />
       <Content Include="Templates\xkcd.txt" />
     </ItemGroup>
