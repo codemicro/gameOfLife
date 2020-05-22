@@ -24,7 +24,6 @@ namespace GameOfLife
         
         private bool[,] States = new bool[46, 46];
         private bool[,] StockCells = new bool[46, 46];  // when the game resets, it restores to this array
-        private bool IsRunning = false;
         private int CurrentIteration = 0;
 
         private readonly bool DrawGrid = true;
@@ -271,14 +270,12 @@ namespace GameOfLife
         private void Start_button(object sender, RoutedEventArgs e)
         {
             Timer.Start();
-            IsRunning = true;
             statusTextBlock.Text = "Currently: Running";
         }
 
         private void Stop_button(object sender, RoutedEventArgs e)
         {
             Timer.Stop();
-            IsRunning = false;
             statusTextBlock.Text = "Currently: Not running";
         }
 
@@ -314,7 +311,6 @@ namespace GameOfLife
             {
 
                 Timer.Stop();
-                IsRunning = false;
                 statusTextBlock.Text = "Currently: Not running";
                 
                 var newArray = new bool[46, 46];
