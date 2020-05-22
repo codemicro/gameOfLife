@@ -83,6 +83,7 @@
     <ItemGroup>
       <Content Include="randomlyGenerated.txt" />
       <Content Include="template.txt" />
+      <Content Include="xkcd.txt" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
