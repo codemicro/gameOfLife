@@ -22,10 +22,11 @@ namespace GameOfLife
         private readonly bool[,] NextIterStates = new bool[46, 46];
         
         private bool[,] States = new bool[46, 46];
-        private readonly bool[,] StockCells = new bool[46, 46];  // when the game resets, it restores to this array
-        
-        public bool IsRunning = false;
-        public int CurrentIteration = 0;
+        private bool[,] StockCells = new bool[46, 46];  // when the game resets, it restores to this array
+        private bool IsRunning = false;
+        private int CurrentIteration = 0;
+
+        private readonly bool DrawGrid = true;
 
         public MainWindow()
         {
@@ -58,32 +59,34 @@ namespace GameOfLife
             }
 
             // Draw grid
-
-            for (var i = 1; i < 46; i++)
+            if (DrawGrid)
             {
-                Line line = new Line()
+                for (var i = 1; i < 46; i++)
                 {
-                    StrokeThickness = 1,
-                    Stroke = Brushes.Black,
-                    X1 = 10 * i - 1,
-                    X2 = 10 * i - 1,
-                    Y1 = 0,
-                    Y2 = 459
-                };
+                    Line line = new Line()
+                    {
+                        StrokeThickness = 1,
+                        Stroke = Brushes.Black,
+                        X1 = 10 * i - 1,
+                        X2 = 10 * i - 1,
+                        Y1 = 0,
+                        Y2 = 459
+                    };
 
-                gameCanvas.Children.Add(line);
+                    gameCanvas.Children.Add(line);
 
-                line = new Line()
-                {
-                    StrokeThickness = 1,
-                    Stroke = Brushes.Black,
-                    X1 = 0,
-                    X2 = 459,
-                    Y1 = 10 * i - 1,
-                    Y2 = 10 * i - 1
-                };
+                    line = new Line()
+                    {
+                        StrokeThickness = 1,
+                        Stroke = Brushes.Black,
+                        X1 = 0,
+                        X2 = 459,
+                        Y1 = 10 * i - 1,
+                        Y2 = 10 * i - 1
+                    };
 
-                gameCanvas.Children.Add(line);
+                    gameCanvas.Children.Add(line);
+                }
             }
 
             void CalculateNextIteration(object sender, DoWorkEventArgs e)
@@ -358,9 +361,9 @@ namespace GameOfLife
                 Array.Copy(newArray, States, States.Length);
                 Array.Copy(newArray, StockCells, StockCells.Length);
                 
-                for (var x = 0; x < 45; x++)
+                for (var x = 0; x < 46; x++)
                 {
-                    for (var y = 0; y < 45; y++)
+                    for (var y = 0; y < 46; y++)
                     {
                         if (newArray[x, y])
                         {
@@ -374,7 +377,19 @@ namespace GameOfLife
                 }
 
                 ResetIteration();
-                loadedFileTextBlock.Text = "Loaded file: " + openFileDialog.FileName;
+
+                string fileString;
+                
+                if (openFileDialog.FileName.Length > 35)
+                {
+                    fileString = "..." + openFileDialog.FileName.Substring(openFileDialog.FileName.Length - 32);
+                }
+                else
+                {
+                    fileString = openFileDialog.FileName;
+                }
+                
+                loadedFileTextBlock.Text = "Loaded file: " + fileString;
 
             }
         }
