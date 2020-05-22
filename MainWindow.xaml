@@ -17,6 +17,7 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
@@ -24,26 +25,38 @@
                 <RowDefinition Height="20" />
             </Grid.RowDefinitions>
             
-            <Border Grid.Column="1" Grid.Row="1" Grid.RowSpan="5" Height="462" Width="462" BorderBrush="Black" BorderThickness="2">
+            <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5">
+                <Menu DockPanel.Dock="Top">
+                    <MenuItem Header="_File">
+                        <MenuItem Header="_Open" Click="LoadFromFile_button" />
+                        <MenuItem Header="_Save" Click="SaveToFile_button"/>
+                        <Separator />
+                        <MenuItem Header="_Reset" Click="Reset_button" />
+                        <Separator />
+                        <MenuItem Header="_Exit" Click="ExitProgram_menu" />
+                    </MenuItem>
+                </Menu>
+                <TextBox AcceptsReturn="True" />
+            </DockPanel>
+            
+            <Border Grid.Column="1" Grid.Row="2" Grid.RowSpan="5" Height="462" Width="462" BorderBrush="Black" BorderThickness="2">
                 <Canvas x:Name="gameCanvas" Height="460" Width="460" ClipToBounds="True">
                 </Canvas>
             </Border>
             
-            <UniformGrid Grid.Column="3" Grid.Row="1" MaxWidth="290">
+            <UniformGrid Grid.Column="3" Grid.Row="2" MaxWidth="290">
                 <Button Content="Start" Click="Start_button"></Button>
                 <Button Content="Stop" Click="Stop_button"></Button>
-                <Button Content="Reset" Click="Reset_button"></Button>
-                <Button Content="Load from file" Click="LoadFromFile_button"></Button>
             </UniformGrid>
             
-            <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="2" Margin="0, 10, 0, 0">
+            <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="3" Margin="0, 10, 0, 0">
                 <TextBlock Text="Tick speed" />
                 <Slider Maximum="1000" Minimum="50" TickPlacement="BottomRight" TickFrequency="50" IsSnapToTickEnabled="True" Margin="5, 0, 0, 0" x:Name="tickSpeedSlider" Width="170" ValueChanged="TickSpeedChanged_slider"/>
                 <TextBox Text="{Binding ElementName=tickSpeedSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right" Width="40" />
                 <TextBlock Text="ms" Margin="2, 0, 0, 0"/>
             </StackPanel>
             
-            <StackPanel Grid.Column="3" Grid.Row="3" x:Name="textGrid" Margin="0, 10, 0, 0">
+            <StackPanel Grid.Column="3" Grid.Row="4" x:Name="textGrid" Margin="0, 10, 0, 0">
                 <TextBlock x:Name="statusTextBlock" Text="Currently: Not running" VerticalAlignment="Center" />
                 <TextBlock x:Name="iterationTextBlock" Text="Iteration: 0" VerticalAlignment="Center" />
                 <TextBlock x:Name="loadedFileTextBlock" Text="Loaded file: None" VerticalAlignment="Center" />
