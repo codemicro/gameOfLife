@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameOfLife"
         mc:Ignorable="d"
-        Title="Game of Life" Height="640" Width="818"
+        Title="Game of Life" Height="560" Width="818"
         x:Name="window">
         <Grid>
             <Grid.ColumnDefinitions>
