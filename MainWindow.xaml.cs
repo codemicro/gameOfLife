@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -7,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using Path = System.IO.Path;
 
 namespace GameOfLife
 {
@@ -317,7 +319,7 @@ namespace GameOfLife
                 statusTextBlock.Text = "Currently: Not running";
                 
                 var newArray = new bool[46, 46];
-                var filetext = File.ReadAllText(openFileDialog.FileName).Split('\n');
+                var filetext = File.ReadAllText(openFileDialog.FileName).Trim().Split('\n');
 
                 if (filetext.Length != 46)
                 {
@@ -394,9 +396,52 @@ namespace GameOfLife
             }
         }
 
+        private void SaveToFile_button(object sender, RoutedEventArgs e)
+        {
+            var saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text files (*.txt)|*.txt";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                var outputLines = new List<string>();
+                
+                for (var y = 0; y < 46; y++)
+                {
+                    var s = "";
+                    for (var x = 0; x < 46; x++)
+                    {
+                        s += States[x, y] ? "1" : "0";
+                    }
+
+                    outputLines.Add(s);
+                }
+
+                try
+                {
+                    using (var outputFile = new StreamWriter(saveFileDialog.FileName))
+                    {
+                        foreach (var line in outputLines)
+                            outputFile.WriteLine(line);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Write to file failed.\n" + ex);
+                    return;
+                }
+
+                MessageBox.Show("Successfully written to " + saveFileDialog.FileName);
+            }
+        }
+
         private void TickSpeedChanged_slider(object sender, RoutedEventArgs e)
         {
             Timer.Interval = TimeSpan.FromMilliseconds(tickSpeedSlider.Value);
+        }
+
+        private void ExitProgram_menu(object sender, RoutedEventArgs e)
+        {
+            Environment.Exit(0);
         }
     }
 }
