@@ -60,6 +60,8 @@
                 <TextBlock x:Name="statusTextBlock" Text="Currently: Not running" VerticalAlignment="Center" />
                 <TextBlock x:Name="iterationTextBlock" Text="Iteration: 0" VerticalAlignment="Center" />
                 <TextBlock x:Name="loadedFileTextBlock" Text="Loaded file: None" VerticalAlignment="Center" />
+                <TextBlock Text="" VerticalAlignment="Center" /> <!--So what this works as a spacer-->
+                <TextBlock Text="Conway's Game of Life - codemicro 2020" VerticalAlignment="Center" />
             </StackPanel>
             
         </Grid>
