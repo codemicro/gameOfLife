@@ -38,7 +38,7 @@
             
             <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="2" Margin="0, 10, 0, 0">
                 <TextBlock Text="Tick speed" />
-                <Slider Maximum="1000" Minimum="100" TickPlacement="BottomRight" TickFrequency="50" IsSnapToTickEnabled="True" Margin="5, 0, 0, 0" x:Name="tickSpeedSlider" Width="170" ValueChanged="TickSpeedChanged_slider"/>
+                <Slider Maximum="1000" Minimum="50" TickPlacement="BottomRight" TickFrequency="50" IsSnapToTickEnabled="True" Margin="5, 0, 0, 0" x:Name="tickSpeedSlider" Width="170" ValueChanged="TickSpeedChanged_slider"/>
                 <TextBox Text="{Binding ElementName=tickSpeedSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right" Width="40" />
                 <TextBlock Text="ms" Margin="2, 0, 0, 0"/>
             </StackPanel>

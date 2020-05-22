@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace GameOfLife
 {
@@ -20,6 +22,7 @@ namespace GameOfLife
         private readonly bool[,] NextIterStates = new bool[46, 46];
         
         private bool[,] States = new bool[46, 46];
+        private readonly bool[,] StockCells = new bool[46, 46];  // when the game resets, it restores to this array
         
         public bool IsRunning = false;
         public int CurrentIteration = 0;
@@ -163,7 +166,7 @@ namespace GameOfLife
 
                 IncrementIteration();
             }
-
+            
             InitialiseCells();
             
             // Add functions to worker to be run asynchronously
@@ -172,7 +175,11 @@ namespace GameOfLife
 
             void tickAction(object sender, object e)
             {
-                worker.RunWorkerAsync();
+                try
+                {
+                    worker.RunWorkerAsync();
+                } catch (InvalidOperationException) { }  // will be thrown if a new tick tries to occur when the previous has not finished, in that case, miss the tick
+                
             }
             
             /*var timer = new System.Threading.Timer(
@@ -219,6 +226,8 @@ namespace GameOfLife
             SetCellAlive(2, 3);
             SetCellAlive(2, 2);
             SetCellAlive(2, 1);
+            
+            Array.Copy(States, StockCells, States.Length);
         }
         
         private void SetCellAlive(int x, int y)
@@ -271,25 +280,103 @@ namespace GameOfLife
 
         private void Reset_button(object sender, RoutedEventArgs e)
         {
-            States = new bool[46,46];  // reset current state of cells
-            
             for (var x = 0; x < 45; x++)
             {
                 for (var y = 0; y < 45; y++)
                 {
-                    if (!States[x, y]) SetCellDead(x, y);
+                    if (StockCells[x, y] == States[x, y]) { }
+                    else if (StockCells[x, y])
+                    {
+                        SetCellAlive(x, y);
+                    }
+                    else
+                    {
+                        SetCellDead(x, y);
+                    }
                 }
             }
             
+            Array.Copy(StockCells, States, States.Length);
+
             ResetIteration();
-            
-            // Redraw
-            InitialiseCells();
         }
 
         private void LoadFromFile_button(object sender, RoutedEventArgs e)
         {
-            // TODO
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text files (*.txt)|*.txt";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+
+                Timer.Stop();
+                IsRunning = false;
+                statusTextBlock.Text = "Currently: Not running";
+                
+                var newArray = new bool[46, 46];
+                var filetext = File.ReadAllText(openFileDialog.FileName).Split('\n');
+
+                if (filetext.Length != 46)
+                {
+                    MessageBox.Show("Incorrect number of lines! Must be 46");
+                    return;
+                }
+                
+                for (var lineNumber = 0; lineNumber < filetext.Length; lineNumber++)
+                {
+                    
+                    if (filetext[lineNumber].Replace("\r", "").Length != 46)
+                    {
+                        MessageBox.Show("Incorrect number of characters on line " + (lineNumber + 1) + "! Must be 46");
+                        return;
+                    }
+                    
+                    for (var charNumber = 0; charNumber < filetext[lineNumber].Replace("\r", "").Length; charNumber++)
+                    {
+                        var c = filetext[lineNumber][charNumber];
+                        
+                        bool val;
+                        if (c == '0')
+                        {
+                            val = false;
+                        } 
+                        else if (c == '1')
+                        {
+                            val = true;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Unknown character '" + c + "'" + " at " + lineNumber + "," + charNumber);
+                            return;
+                        }
+
+                        newArray[charNumber, lineNumber] = val;
+
+                    }
+                }
+                
+                Array.Copy(newArray, States, States.Length);
+                Array.Copy(newArray, StockCells, StockCells.Length);
+                
+                for (var x = 0; x < 45; x++)
+                {
+                    for (var y = 0; y < 45; y++)
+                    {
+                        if (newArray[x, y])
+                        {
+                            SetCellAlive(x, y);
+                        }
+                        else
+                        {
+                            SetCellDead(x, y);
+                        }
+                    }
+                }
+
+                ResetIteration();
+                loadedFileTextBlock.Text = "Loaded file: " + openFileDialog.FileName;
+
+            }
         }
 
         private void TickSpeedChanged_slider(object sender, RoutedEventArgs e)
